@@ -20,13 +20,20 @@ import {
 import { getLocators } from "./locators.ts";
 import { setupBrowser } from "./browser.ts";
 
-const { endIndex, cleanFiles, headless } = getArgs();
+const { endIndex, cleanFiles, windowless, help } = getArgs();
+
+if (help) {
+  console.log(`\nAvailable flags
+  -w for hiding browser window
+  -n for deleting already existing images and pokemon.json
+  --end {number} for ending on specific pokemon (using national index)\n
+  `);
+}
 
 if (cleanFiles) await deleteFiles();
 
-const { page, wait, close } = await setupBrowser(headless);
+const { page, wait, close } = await setupBrowser(windowless);
 
-// startup page
 await page.goto("https://www.pokemon.com/us/pokedex/bulbasaur");
 await wait();
 await page.click("text=Accept All");
@@ -90,31 +97,17 @@ do {
     const artwork = await downloadArtwork(artworkSource, index, name, formName);
     const generation = getGeneration(index, formName);
 
-    // console.log("New Pokemon");
-    // console.log("------------------------------");
-    // console.log("Name:", name);
-    // console.log("Index:", index);
-    // console.log("Gender:", gender);
-    // console.log("Generation:", generation);
-    // console.log("Category:", category);
-    // console.log("Versions:", versions);
-    // console.log("Types:", types);
-    // console.log("Form:", formName);
-    // console.log("Final evolutions:", finalEvolutions);
-    // console.log("Artwork:", artwork);
-    // console.log("------------------------------");
-
     const pokemon: Pokemon = {
-      artwork,
-      category,
-      evolution_chain: finalEvolutions,
-      flavor_text: versions,
-      form: formName,
-      gender,
-      generation,
       index,
       name,
+      category,
+      gender,
+      generation,
       type: types,
+      flavor_text: versions,
+      evolution_chain: finalEvolutions,
+      form: formName,
+      artwork,
       home_sprite: null,
       home_sprite_female: null,
       home_sprite_female_shiny: null,

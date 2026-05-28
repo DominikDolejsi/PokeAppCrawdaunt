@@ -1,4 +1,4 @@
-import { Locator, Page } from "playwright";
+import { Locator } from "playwright";
 import {
   Evolution,
   generationMapping,
@@ -10,10 +10,6 @@ import { parseArgs } from "@std/cli/parse-args";
 
 export const isPokemonType = (value: string): value is PokemonType => {
   return Object.values(POKEMON_TYPE).includes(value as PokemonType);
-};
-
-export const randWait = async (page: Page) => {
-  await page.waitForTimeout(400 + Math.random() * 1600);
 };
 
 export const getName = async (nameLocator: Locator): Promise<string> => {
@@ -32,7 +28,7 @@ export const getIndex = async (indexLocator: Locator): Promise<number> => {
       if (arr.length > 0) {
         return Number(arr[0].slice(1));
       } else {
-        throw new Error("Lenght of array with index is 0");
+        throw new Error("Length of array with index is 0");
       }
     });
 };
@@ -73,7 +69,7 @@ export const getEvolutions = async (
         }
         return newArr;
       } else {
-        throw new Error("Lenght of array with index is 0");
+        throw new Error("Length of array with index is 0");
       }
     },
   );
@@ -148,7 +144,7 @@ export const getCategory = async (
   if (category.length > 0) {
     return category[0].trim();
   } else {
-    throw new Error("Lenght of array with category is 0");
+    throw new Error("Length of array with category is 0");
   }
 };
 
@@ -162,18 +158,18 @@ export const getVersions = async (
   await wait();
   await versionYButton.click();
   await wait();
-  const versiony = (await versionYLocator.allInnerTexts())[0];
+  const versionY = (await versionYLocator.allInnerTexts())[0];
 
   await versionXButton.click();
   await wait();
-  const versionx = (await versionXLocator.allInnerTexts())[0];
+  const versionX = (await versionXLocator.allInnerTexts())[0];
 
   const versions: string[] = [];
 
-  if (versionx) versions.push(versionx);
-  if (versiony && versiony !== versionx) versions.push(versiony);
+  if (versionX) versions.push(versionX);
+  if (versionY && versionY !== versionX) versions.push(versionY);
 
-  if (versions.length === 0) throw new Error("Didnt found any versions");
+  if (versions.length === 0) throw new Error("Did not found any versions");
 
   return versions;
 };
@@ -202,12 +198,12 @@ export const getForm = async (
 ): Promise<string | null> => {
   const formName = await formClickLocator.allInnerTexts();
 
-  const formatedFormName = formName[0]?.replace(name, "").replaceAll("(", "")
+  const formattedFormName = formName[0]?.replace(name, "").replaceAll("(", "")
     .replaceAll(")", "")
     .replaceAll("  ", " ")
     .toLowerCase().trim();
 
-  return formatedFormName ? formatedFormName : null;
+  return formattedFormName ? formattedFormName : null;
 };
 
 export const getArtwork = async (artworkLocator: Locator) => {
@@ -222,9 +218,9 @@ export const downloadArtwork = async (
 ) => {
   if (src === null) throw new Error(`Src for artwork download is ${src}`);
 
-  const formatedForm = form ? "-" + form.replaceAll(" ", "_") : "";
+  const formattedForm = form ? "-" + form.replaceAll(" ", "_") : "";
 
-  const fileName = `${index}-${name.toLowerCase()}${formatedForm}`;
+  const fileName = `${index}-${name.toLowerCase()}${formattedForm}`;
 
   const response = await fetch(src);
 
@@ -284,7 +280,8 @@ export const getArgs = () => {
   console.log("args:", args);
 
   const settings = {
-    headless: args.h ?? false,
+    help: args.h ?? false,
+    windowless: args.w ?? false,
     cleanFiles: args.n ?? false,
     endIndex: args.end ?? 0,
   };
