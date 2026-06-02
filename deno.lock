@@ -8,6 +8,7 @@
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "npm:lefthook@2.1.8": "2.1.8",
     "npm:lefthook@^2.1.8": "2.1.8",
+    "npm:playwright@*": "1.60.0",
     "npm:playwright@^1.60.0": "1.60.0"
   },
   "jsr": {

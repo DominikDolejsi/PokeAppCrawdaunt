@@ -77,8 +77,11 @@ export const getEvolutions = async (
   return evolutionNumbers;
 };
 
-export const transformEvolutions = async (evolutions: number[]) => {
-  if (!evolutions.length) return { index: 0 };
+export const transformEvolutions = async (
+  evolutions: number[],
+  pokemonIndex: number,
+) => {
+  if (!evolutions.length) return null;
 
   const evolutionsSet = new Set(evolutions);
 
@@ -133,7 +136,28 @@ export const transformEvolutions = async (evolutions: number[]) => {
     }
   }
 
-  return evolutionChain;
+  const parseNextEvolution = (
+    ownIndex: number,
+    evoChain: Evolution,
+  ): number[] | null => {
+    if (!evoChain.evolution) return null;
+
+    if (evoChain.index === ownIndex) {
+      return evoChain.evolution.map((val) => val.index);
+    }
+
+    for (const secondEvo of evoChain.evolution) {
+      if (secondEvo.index === ownIndex) {
+        return secondEvo.evolution
+          ? secondEvo.evolution.map((val) => val.index)
+          : null;
+      }
+    }
+
+    return null;
+  };
+
+  return parseNextEvolution(pokemonIndex, evolutionChain);
 };
 
 export const getCategory = async (
@@ -276,16 +300,12 @@ export const getGeneration = (index: number, form: string | null): number => {
 
 export const getArgs = () => {
   const args = parseArgs(Deno.args);
-
-  console.log("args:", args);
-
   const settings = {
     help: args.h ?? false,
     windowless: args.w ?? false,
     cleanFiles: args.n ?? false,
     endIndex: args.end ?? 0,
   };
-
   return settings;
 };
 

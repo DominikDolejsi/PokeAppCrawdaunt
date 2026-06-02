@@ -12,7 +12,7 @@ export type Pokemon = {
   home_sprite_shiny: string | null;
   home_sprite_female: string | null;
   home_sprite_female_shiny: string | null;
-  evolution_chain: Evolution;
+  next_evolution: number[] | null;
 };
 
 export type Evolution = {

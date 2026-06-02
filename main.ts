@@ -92,7 +92,7 @@ do {
     const types = await getTypes(typeLocator);
     const formName = await getForm(name, formClickLocator);
     const evolutions = await getEvolutions(evolutionLocator);
-    const finalEvolutions = await transformEvolutions(evolutions);
+    const nextEvolution = await transformEvolutions(evolutions, index);
     const artworkSource = await getArtwork(artworkLocator);
     const artwork = await downloadArtwork(artworkSource, index, name, formName);
     const generation = getGeneration(index, formName);
@@ -105,7 +105,7 @@ do {
       generation,
       type: types,
       flavor_text: versions,
-      evolution_chain: finalEvolutions,
+      next_evolution: nextEvolution,
       form: formName,
       artwork,
       home_sprite: null,
