@@ -85,6 +85,8 @@ do {
       await formListItems[form].click();
     }
 
+    await wait();
+
     const name = await getName(nameLocator);
     const index = await getIndex(indexLocator);
     const gender = await getGender(

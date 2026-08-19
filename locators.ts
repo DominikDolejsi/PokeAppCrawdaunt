@@ -12,7 +12,7 @@ export const getLocators = (page: Page) => {
   const evolutionLocator = page.locator(
     ".pokedex-pokemon-evolution .pokemon-number:visible",
   );
-  const genderlessLocator = page.locator("span.attribute-value", {
+  const genderlessLocator = page.locator("span.attribute-value:visible", {
     hasText: "Unknown",
   });
   const maleLocator = page.locator("i.icon_male_symbol:visible");
