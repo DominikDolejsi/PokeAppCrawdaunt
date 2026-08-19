@@ -19,7 +19,6 @@ each repository focuses on a single concern.
 # Installation
 
 ```bash
-
 git clone
 
 cd crawdaunt
@@ -27,15 +26,12 @@ cd crawdaunt
 deno install
 
 deno run configure
-
 ```
 
 # Usage
 
 ```bash
-
 deno run main.ts
-
 ```
 
 # Tech Stack

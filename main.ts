@@ -14,6 +14,7 @@ import {
   getNextIndex,
   getTypes,
   getVersions,
+  recoverFromInterruptCrawl,
   savePokemonData,
   transformEvolutions,
 } from "./helpers.ts";
@@ -30,11 +31,19 @@ if (help) {
   `);
 }
 
+console.log(`Starting crawling process.
+  window: ${windowless ? "hidden" : "shown"}
+  delete-files: ${cleanFiles ? "on" : "off"}
+  ending index: ${endIndex ? endIndex : "last"}
+  `);
+
 if (cleanFiles) await deleteFiles();
+
+const startingName = await recoverFromInterruptCrawl();
 
 const { page, wait, close } = await setupBrowser(windowless);
 
-await page.goto("https://www.pokemon.com/us/pokedex/bulbasaur");
+await page.goto(`https://www.pokemon.com/us/pokedex/${startingName}`);
 await wait();
 await page.click("text=Accept All");
 
@@ -61,6 +70,8 @@ const {
 let nextIndex = await getNextIndex(nextIndexLocator);
 
 do {
+  await wait();
+
   const formListItems = await formLocator.all();
 
   const formAmount = formListItems.length ? formListItems.length : 1;
@@ -121,5 +132,7 @@ do {
   await nextPokemonLocator.click();
   await wait();
 } while (nextIndex !== endIndex + 1);
+
+console.log("Crawling ended successfully");
 
 await close();

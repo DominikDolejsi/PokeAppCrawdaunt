@@ -16,7 +16,7 @@ export const getName = async (nameLocator: Locator): Promise<string> => {
   return await nameLocator.evaluate((element: HTMLElement) =>
     Array.from(element.childNodes)
       .filter((n) => n.nodeType === Node.TEXT_NODE)
-      .map((n) => n.textContent?.trim())
+      .map((n) => n.textContent?.replaceAll(/[♀♂]/g, "").trim())
       .join("")
   );
 };
@@ -242,9 +242,7 @@ export const downloadArtwork = async (
 ) => {
   if (src === null) throw new Error(`Src for artwork download is ${src}`);
 
-  const formattedForm = form ? "-" + form.replaceAll(" ", "_") : "";
-
-  const fileName = `${index}-${name.toLowerCase()}${formattedForm}`;
+  const fileName = createArtworkFileName(index, name, form);
 
   const response = await fetch(src);
 
@@ -318,4 +316,153 @@ export const deleteFiles = async () => {
       throw err;
     }
   }
+};
+
+const createArtworkFileName = (
+  index: number,
+  name: string,
+  form: string | null,
+) => {
+  const formattedForm = form ? "-" + form.replaceAll(" ", "_") : "";
+  return `${index}-${name.toLowerCase()}${formattedForm}`;
+};
+
+export const readPokemonData = async () => {
+  // If cleanup is on then I woudl skip this fase
+  // I read pokemon.json
+  // if no pokemon.json than return undefined (send message to console)
+  // If pokemon.json in wrong format return bulbasaur (send message to console)
+  // than I do algo stuff - filter and variables
+  // - I split pokemon data to unproblematic and without problematic last pokemon and write them down
+  // - I get problematic part and extract image names and delete them in images folder
+  // I  return latest pokemon name - which I use for starting url
+
+  let latestPokemonName;
+
+  try {
+    const pokemonJSON = await Deno.readTextFile("./pokemon.json");
+
+    const pokemonData: Pokemon[] = JSON.parse(pokemonJSON);
+
+    const latestPokemon = pokemonData[pokemonData.length - 1];
+
+    console.log("latestPokemon", latestPokemon);
+
+    const latestPokemonData = pokemonData.filter((pokemon) =>
+      pokemon.index === latestPokemon?.index
+    );
+    console.log("dataWithoutLatestPokemon", latestPokemonData);
+
+    const imageNames: string[] = latestPokemonData.map((pokemon) =>
+      createArtworkFileName(pokemon.index, pokemon.name, pokemon.form)
+    );
+    console.log("imageNames", imageNames);
+
+    const dataWithoutLatestPokemon = pokemonData.filter((pokemon) =>
+      pokemon.index !== latestPokemon?.index
+    );
+    console.log("solidPokemonData", dataWithoutLatestPokemon);
+
+    await Deno.writeTextFile(
+      "./pokemon.json",
+      JSON.stringify(dataWithoutLatestPokemon),
+    );
+
+    imageNames.forEach((name) => {
+      Deno.remove(`./images/${name}.png`);
+    });
+
+    latestPokemonName = latestPokemon?.name;
+
+    console.log("latestPokemonName", latestPokemonName);
+  } catch (err) {
+    if (!(err instanceof Deno.errors.NotFound)) {
+      throw err;
+    }
+  }
+
+  return latestPokemonName?.toLowerCase();
+};
+
+const loadPokemonData = async () => {
+  try {
+    const pokemonJSON = await Deno.readTextFile("./pokemon.json");
+
+    return JSON.parse(pokemonJSON);
+  } catch (err) {
+    if (!(err instanceof Deno.errors.NotFound)) {
+      throw err;
+    }
+    if (err instanceof Deno.errors.NotFound) {
+      console.log("pokemon.json not found > starting sequence from begining");
+      return undefined;
+    }
+  }
+};
+
+const getLastPokemonEntries = (pokemonData: Pokemon[]) => {
+  const lastPokemon = pokemonData[pokemonData.length - 1];
+
+  const lastPokemonData = pokemonData.filter((pokemon) =>
+    pokemon.index === lastPokemon?.index
+  );
+
+  const imageNames: string[] = lastPokemonData.map((pokemon) =>
+    createArtworkFileName(pokemon.index, pokemon.name, pokemon.form)
+  );
+
+  return imageNames;
+};
+
+const deletePokemonImages = async (pokemonEntries: string[]) => {
+  for (const name of pokemonEntries) {
+    try {
+      await Deno.remove(`./images/${name}.png`);
+    } catch (err) {
+      if (err instanceof Deno.errors.NotFound) {
+        console.log(
+          `image name: ${name} was not found > images might not be cleaned up correctly`,
+        );
+      }
+      if (!(err instanceof Deno.errors.NotFound)) {
+        throw err;
+      }
+    }
+  }
+};
+
+const saveConsistentPokemonData = async (pokemonData: Pokemon[]) => {
+  const lastPokemon = pokemonData[pokemonData.length - 1];
+  const consistentPokemonData = pokemonData.filter((pokemon) =>
+    pokemon.index !== lastPokemon?.index
+  );
+
+  await Deno.writeTextFile(
+    "./pokemon.json",
+    JSON.stringify(consistentPokemonData),
+  );
+};
+
+const getRestartPokemon = (pokemonData: Pokemon[]) => {
+  const lastPokemon = pokemonData[pokemonData.length - 1];
+
+  return lastPokemon.name.toLowerCase();
+};
+
+export const recoverFromInterruptCrawl = async () => {
+  const pokemonData = await loadPokemonData();
+
+  if (pokemonData == undefined) return "bulbasaur";
+
+  const lastPokemonEntries = getLastPokemonEntries(pokemonData);
+  await deletePokemonImages(lastPokemonEntries);
+
+  await saveConsistentPokemonData(pokemonData);
+
+  const restartPokemon = getRestartPokemon(pokemonData);
+  console.log(
+    `Recover successfull -> starting from pokemon name: ${restartPokemon}`,
+  );
+
+  return restartPokemon;
 };
