@@ -15,30 +15,32 @@ export type Pokemon = {
   next_evolution: number[] | null;
 };
 
+export type PokemonDB = Pokemon & { _id: string };
+
 export type Evolution = {
   index: number;
   evolution?: Evolution[];
 };
 
 export const POKEMON_TYPE = {
-  Fire: "Fire",
-  Water: "Water",
-  Grass: "Grass",
-  Poison: "Poison",
-  Normal: "Normal",
-  Rock: "Rock",
-  Ground: "Ground",
-  Flying: "Flying",
-  Psychic: "Psychic",
-  Ghost: "Ghost",
-  Fighting: "Fighting",
-  Electric: "Electric",
-  Fairy: "Fairy",
-  Steel: "Steel",
-  Dark: "Dark",
-  Dragon: "Dragon",
-  Ice: "Ice",
-  Bug: "Bug",
+  fire: "fire",
+  water: "water",
+  grass: "grass",
+  poison: "poison",
+  normal: "normal",
+  rock: "rock",
+  ground: "ground",
+  flying: "flying",
+  psychic: "psychic",
+  ghost: "ghost",
+  fighting: "fighting",
+  electric: "electric",
+  fairy: "fairy",
+  steel: "steel",
+  dark: "dark",
+  dragon: "dragon",
+  ice: "ice",
+  bug: "bug",
 } as const;
 
 export type PokemonType = keyof typeof POKEMON_TYPE;
