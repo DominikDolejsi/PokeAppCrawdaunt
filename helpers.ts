@@ -297,12 +297,16 @@ export const getGeneration = (index: number, form: string | null): number => {
 };
 
 export const getArgs = () => {
-  const args = parseArgs(Deno.args);
+  const args = parseArgs(Deno.args, {
+    boolean: ["h", "w", "n"],
+    string: ["end", "mode"],
+  });
   const settings = {
     help: args.h ?? false,
     windowless: args.w ?? false,
     cleanFiles: args.n ?? false,
-    endIndex: args.end ?? 0,
+    endIndex: Number(args.end) ?? 0,
+    mode: args.mode ?? "crawl",
   };
   return settings;
 };
