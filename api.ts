@@ -7,7 +7,7 @@ export const api = async <T>(
   const response = await fetch(`${Deno.env.get("API")}${path}`, init);
 
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${base}${path}`);
+    throw new Error(`HTTP ${response.status} for ${path}`);
   }
 
   return response.json() as Promise<T>;
@@ -45,7 +45,7 @@ export const cleanDatabase = async () => {
   }
 };
 
-export const uploadPokemon = async (pokemonData: Pokemon[]) => {
+export const uploadPokemon = (pokemonData: Pokemon[]) => {
   const createOptions: RequestInit = {
     method: "POST",
     body: JSON.stringify(pokemonData),
